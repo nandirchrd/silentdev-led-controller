@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Led Controller</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body{
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: black;
+        }
+        body{
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #toggle{
+            width: 80vmin;
+            height: 80vmin;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+    </style>
+</head>
+<body>
+    <img id="toggle" src="./images/toggle-off.png" data-toggle="false">
+
+    <script type="module">
+        import { io } from "https://cdn.socket.io/4.7.5/socket.io.esm.min.js";
+
+        const socket = io("192.168.248.233:3000"); // YOUR LOCAL IP ADDRESS
+        const toggle = document.querySelector("#toggle");
+        
+        
+        socket.on('update', (isOn)=>{
+            if(isOn){
+                toggle.dataset.toggle = true;
+                toggle.src = './images/toggle-on.png'
+            }else{
+                toggle.dataset.toggle = false;
+                toggle.src = './images/toggle-off.png'
+            }
+        })
+
+        toggle.onclick = ({target})=>{
+            const isOn = JSON.parse(target.dataset.toggle);
+
+            if(isOn){
+                socket.emit('led', false)
+                toggle.dataset.toggle = false;
+                toggle.src = './images/toggle-off.png'
+            }else{
+                socket.emit('led', true)
+                toggle.dataset.toggle = true;
+                toggle.src = './images/toggle-on.png'
+            }
+        }
+    </script>
+</body>
+</html>
